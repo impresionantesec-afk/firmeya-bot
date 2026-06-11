@@ -3,7 +3,7 @@ import express from 'express';
 import Anthropic from '@anthropic-ai/sdk';
 import { FIRMEYA_PROMPT } from './prompt.js';
 import { getHistory, addMessage } from './conversations.js';
-import { sendMessage, extractMessage } from './whatsapp.js';
+import { sendMessage, extractMessage, reenviarImagen, reenviarDocumento } from './whatsapp.js';
 
 const app = express();
 app.use(express.json());
@@ -30,15 +30,22 @@ app.post('/webhook', async (req, res) => {
   const msg = extractMessage(req.body);
   if (!msg) return;
 
-  // Reenvía imágenes y documentos al asesor
+// Reenvía imágenes y documentos al asesor
   if (msg.type !== 'text') {
-    const tipoArchivo = msg.type === 'image' ? '📸 Imagen' : 
-                        msg.type === 'document' ? '📄 Documento' : 
-                        '📎 Archivo';
+    const NUMERO_ASESOR = '593996025273';
+    
+    // Primero envía el aviso con el número del cliente
     await sendMessage(
-      '593996025273',
-      `${tipoArchivo} recibido de cliente *+${msg.from}*\n\nRevisa la conversación en Meta Business Suite.`
+      NUMERO_ASESOR,
+      `📨 *Documento de cliente +${msg.from}*:`
     );
+
+    // Luego reenvía el archivo según su tipo
+    if (msg.type === 'image') {
+      await reenviarImagen(NUMERO_ASESOR, msg.imageId);
+    } else if (msg.type === 'document') {
+      await reenviarDocumento(NUMERO_ASESOR, msg.documentId, msg.documentName);
+    }
     return;
   }
 
