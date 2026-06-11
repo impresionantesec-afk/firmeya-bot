@@ -31,7 +31,19 @@ app.post('/webhook', async (req, res) => {
   if (!msg) return;
 
 // Reenvía imágenes y documentos al asesor
-  if (msg.type !== 'text') {
+  // Reenvía mensajes de texto con celular o correo al asesor
+  if (msg.type === 'text' && msg.text) {
+    const esContacto = 
+      /\b09\d{8}\b/.test(msg.text) || // número ecuatoriano
+      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(msg.text); // correo
+    
+    if (esContacto) {
+      await sendMessage(
+        '593996025273',
+        `📋 *Datos de contacto de cliente +${msg.from}*:\n${msg.text}`
+      );
+    }
+  }
     const NUMERO_ASESOR = '593996025273';
     
     // Primero envía el aviso con el número del cliente
