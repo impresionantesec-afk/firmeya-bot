@@ -23,36 +23,17 @@ app.get('/webhook', (req, res) => {
 });
 
 // ── Recibe mensajes de WhatsApp ───────────────────────────
-// ── Recibe mensajes de WhatsApp ───────────────────────────
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
 
   const msg = extractMessage(req.body);
   if (!msg) return;
 
-// Reenvía imágenes y documentos al asesor
-  // Reenvía mensajes de texto con celular o correo al asesor
-  if (msg.type === 'text' && msg.text) {
-    const esContacto = 
-      /\b09\d{8}\b/.test(msg.text) || // número ecuatoriano
-      /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(msg.text); // correo
-    
-    if (esContacto) {
-      await sendMessage(
-        '593996025273',
-        `📋 *Datos de contacto de cliente +${msg.from}*:\n${msg.text}`
-      );
-    }
-  }
-    const NUMERO_ASESOR = '593996025273';
-    
-    // Primero envía el aviso con el número del cliente
-    await sendMessage(
-      NUMERO_ASESOR,
-      `📨 *Documento de cliente +${msg.from}*:`
-    );
+  const NUMERO_ASESOR = '593996025273';
 
-    // Luego reenvía el archivo según su tipo
+  // Reenvía imágenes y documentos al asesor
+  if (msg.type !== 'text') {
+    await sendMessage(NUMERO_ASESOR, `📨 *Documento de cliente +${msg.from}*:`);
     if (msg.type === 'image') {
       await reenviarImagen(NUMERO_ASESOR, msg.imageId);
     } else if (msg.type === 'document') {
@@ -62,6 +43,18 @@ app.post('/webhook', async (req, res) => {
   }
 
   if (!msg.text) return;
+
+  // Reenvía celular o correo al asesor
+  const esContacto =
+    /\b09\d{8}\b/.test(msg.text) ||
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/.test(msg.text);
+
+  if (esContacto) {
+    await sendMessage(
+      NUMERO_ASESOR,
+      `📋 *Datos de contacto de cliente +${msg.from}*:\n${msg.text}`
+    );
+  }
 
   console.log(`📩 [${msg.from}]: ${msg.text}`);
 
