@@ -23,11 +23,26 @@ app.get('/webhook', (req, res) => {
 });
 
 // ── Recibe mensajes de WhatsApp ───────────────────────────
+// ── Recibe mensajes de WhatsApp ───────────────────────────
 app.post('/webhook', async (req, res) => {
   res.sendStatus(200);
 
   const msg = extractMessage(req.body);
-  if (!msg || !msg.text) return;
+  if (!msg) return;
+
+  // Reenvía imágenes y documentos al asesor
+  if (msg.type !== 'text') {
+    const tipoArchivo = msg.type === 'image' ? '📸 Imagen' : 
+                        msg.type === 'document' ? '📄 Documento' : 
+                        '📎 Archivo';
+    await sendMessage(
+      '593996025273',
+      `${tipoArchivo} recibido de cliente *+${msg.from}*\n\nRevisa la conversación en Meta Business Suite.`
+    );
+    return;
+  }
+
+  if (!msg.text) return;
 
   console.log(`📩 [${msg.from}]: ${msg.text}`);
 
