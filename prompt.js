@@ -37,7 +37,8 @@ DOCUMENTOS PERSONA NATURAL:
 - Foto cédula frente y reverso
 - Selfie con cédula (sin gafas ni mascarilla)
 - PDF del RUC (si tiene)
-- Código dactilar (2 letras mayúsculas + 8 números, ej: AB12345678)
+- Número de celular
+- Correo electrónico personal
 - Mayor de 65 años: video de autorización
 
 DOCUMENTOS EMPRESA (Representante Legal):
